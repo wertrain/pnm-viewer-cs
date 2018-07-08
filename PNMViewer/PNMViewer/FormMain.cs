@@ -25,49 +25,111 @@ namespace PNMViewer
         private void initParam()
         {
             pictureBoxMain.AllowDrop = true;
+
+            // マウスで移動できるようにする
+            Point mousePoint = new Point();
+            pictureBoxMain.MouseDown += (object sender, MouseEventArgs e) =>
+            {
+                if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+                {
+                    mousePoint = new Point(e.X, e.Y);
+                }
+            };
+            pictureBoxMain.MouseMove += (object sender, MouseEventArgs e) =>
+            {
+                if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+                {
+                    this.Location = new Point(
+                        this.Location.X + e.X - mousePoint.X,
+                        this.Location.Y + e.Y - mousePoint.Y);
+                }
+            };
+            // ドラッグ＆ドロップイベント
+            pictureBoxMain.DragDrop += (object sender, DragEventArgs e) =>
+            {
+                var filename = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+
+                using (System.IO.FileStream fs = new System.IO.FileStream(
+                         filename[0],
+                         System.IO.FileMode.Open,
+                         System.IO.FileAccess.Read))
+                {
+                    try
+                    {
+                        _bitmap = new Bitmap(Image.FromStream(fs));
+                    }
+                    catch (Exception)
+                    {
+                        return;
+                    }
+                }
+
+                pictureBoxMain.Image = _bitmap;
+            };
+            pictureBoxMain.DragEnter += (object sender, DragEventArgs e) =>
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    e.Effect = DragDropEffects.Copy;
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                }
+            };
         }
 
         /// <summary>
-        /// ドロップされたときのイベント
+        /// Exit メニューが選択されたときのイベント（共通）
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void pictureBoxMain_DragDrop(object sender, DragEventArgs e)
+        private void toolStripMenuItemExit_Click(object sender, EventArgs e)
         {
-            var filename = (string [])e.Data.GetData(DataFormats.FileDrop, false);
-
-            using (System.IO.FileStream fs = new System.IO.FileStream(
-                     filename[0],
-                     System.IO.FileMode.Open,
-                     System.IO.FileAccess.Read))
-            {
-                try
-                {
-                    _bitmap = new Bitmap(Image.FromStream(fs));
-                }
-                catch(Exception)
-                {
-                    return;
-                }
-            }
-
-            pictureBoxMain.Image = _bitmap;
+            this.Close();
         }
 
         /// <summary>
-        /// ドラッグされたときのイベント
+        /// Hide Menu メニューが選択された時のイベント
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void pictureBoxMain_DragEnter(object sender, DragEventArgs e)
+        private void toolStripMenuItemHideMenu_Click(object sender, EventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            toolStripMenuItemHideMenu.Checked = !toolStripMenuItemHideMenu.Checked;
+            toolStripContextMenuItemHideMenu.Checked = toolStripMenuItemHideMenu.Checked;
+
+            menuStripMain.Visible = !toolStripMenuItemHideMenu.Checked;
+
+            if (toolStripMenuItemHideMenu.Checked)
             {
-                e.Effect = DragDropEffects.Copy;
+                this.FormBorderStyle = FormBorderStyle.None;
             }
             else
             {
-                e.Effect = DragDropEffects.None;
+                this.FormBorderStyle = FormBorderStyle.Sizable;
+            }
+        }
+
+        /// <summary>
+        /// Hide Menu コンテキストメニューが選択された時のイベント 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripContextMenuItemHideMenu_Click(object sender, EventArgs e)
+        {
+            toolStripContextMenuItemHideMenu.Checked = !toolStripContextMenuItemHideMenu.Checked;
+            toolStripMenuItemHideMenu.Checked = toolStripContextMenuItemHideMenu.Checked;
+
+            menuStripMain.Visible = !toolStripContextMenuItemHideMenu.Checked;
+
+            if (toolStripContextMenuItemHideMenu.Checked)
+            {
+                this.FormBorderStyle = FormBorderStyle.None;
+            }
+            else
+            {
+                this.FormBorderStyle = FormBorderStyle.Sizable;
             }
         }
 
