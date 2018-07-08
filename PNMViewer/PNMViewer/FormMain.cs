@@ -20,6 +20,14 @@ namespace PNMViewer
             InitializeComponent();
 
             initParam();
+
+            string[] cmds = Environment.GetCommandLineArgs();
+            for (int i = 1; i < cmds.Length;)
+            {
+                _bitmap = createBitmapFromFile(cmds[i]);
+                pictureBoxMain.Image = _bitmap;
+                break;
+            }
         }
 
         /// <summary>
@@ -52,20 +60,12 @@ namespace PNMViewer
             {
                 var filename = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
-                using (System.IO.FileStream fs = new System.IO.FileStream(
-                         filename[0],
-                         System.IO.FileMode.Open,
-                         System.IO.FileAccess.Read))
+                if (_bitmap != null)
                 {
-                    try
-                    {
-                        _bitmap = new Bitmap(Image.FromStream(fs));
-                    }
-                    catch (Exception)
-                    {
-                        return;
-                    }
+                    _bitmap.Dispose();
+                    _bitmap = null;
                 }
+                _bitmap = createBitmapFromFile(filename[0]);
 
                 pictureBoxMain.Image = _bitmap;
             };
@@ -80,6 +80,30 @@ namespace PNMViewer
                     e.Effect = DragDropEffects.None;
                 }
             };
+        }
+
+        /// <summary>
+        /// 画像読み込み
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        private Bitmap createBitmapFromFile(string filename)
+        {
+            using (System.IO.FileStream fs = new System.IO.FileStream(
+                     filename,
+                     System.IO.FileMode.Open,
+                     System.IO.FileAccess.Read))
+            {
+                try
+                {
+                    return new Bitmap(Image.FromStream(fs));
+                }
+                catch (Exception)
+                {
+                    PNM.CheckFormat(filename);
+                    return null;
+                }
+            }
         }
 
         /// <summary>
