@@ -12,6 +12,9 @@ namespace PNMViewer
 {
     public partial class FormMain : Form
     {
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public FormMain()
         {
             InitializeComponent();
