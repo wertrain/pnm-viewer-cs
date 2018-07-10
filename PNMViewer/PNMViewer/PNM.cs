@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PNMViewer
 {
@@ -56,6 +58,7 @@ namespace PNMViewer
                 byte[] image = new byte[fs.Length];
                 fs.Read(image, 0, image.Length);
 
+                if (checkPBMHeader(image)) return Format.PBM;
                 return checkFormat(image);
             }
         }
@@ -119,7 +122,60 @@ namespace PNMViewer
         /// 区切り文字コード
         /// スペース文字(' ')，CR('\r')，LF('\n')，TAB('\t')
         /// </summary>
-        private static int[] _delimiters = { 0x20, 0x0d, 0x0a, 0x09 };
+        private static int[] _delimitersAscii = { 0x20, 0x0d, 0x0a, 0x09 };
+
+        /// <summary>
+        /// 区切り文字コード
+        /// スペース文字(' ')，CR('\r')，LF('\n')，TAB('\t')
+        /// </summary>
+        private static char[] _delimitersChar = { ' ', '\r', '\n', '\t' };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static string _metaDelimiters = "[ \r\n\t]";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static string _metaDelimitersOneOrMore = _metaDelimiters + "+";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static string _metaComment = "#.*\n";
+
+        private static string cutPNMComment(string text)
+        {
+            return Regex.Replace(text, "#.*\n", string.Empty);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private static bool checkPBMHeader(byte [] image)
+        {
+            // ASCII 文字として解釈し、コメントを削除する 
+            string all = Encoding.ASCII.GetString(image);
+            all = Regex.Replace(all, _metaComment, string.Empty);
+
+            // マジックナンバ「P1」
+            // 単数または複数の「区切りコード」
+            // 画像の横方向ピクセル数（画像の横幅）
+            // 単数または複数の「区切りコード」
+            // 画像の縦方向ピクセル数（画像の高さ）
+            // 単数の「区切りコード」
+
+            StringBuilder pattern = new StringBuilder();
+            pattern.Append("P1");
+            pattern.Append(_metaDelimitersOneOrMore);
+            pattern.Append("\\d+");
+            pattern.Append(_metaDelimitersOneOrMore);
+            pattern.Append("\\d+");
+            pattern.Append(_metaDelimiters); 
+            return Regex.IsMatch(all, pattern.ToString());
+        }
 
         /// <summary>
         /// 
@@ -130,7 +186,7 @@ namespace PNMViewer
         private static int skipDelimiters(byte [] image, int offset, out int count)
         {
             count = 0;
-            for (int index = offset; index < image.Length; ++index)
+            /*for (int index = offset; index < image.Length; ++index)
             {
                 for (int d = 0; d < _delimiters.Length; ++d)
                 {
@@ -140,7 +196,7 @@ namespace PNMViewer
                         return index;
                     }
                 }
-            }
+            }*/
             return 0;
         }
 
@@ -151,10 +207,7 @@ namespace PNMViewer
         /// <returns></returns>
         private static Bitmap convertPBM(byte [] image)
         {
-            int offset = 2; // 先頭のマジックナンバーを飛ばす
-
-            int count = 0;
-            skipDelimiters(image, offset, out count);
+            checkPBMHeader(image);
 
             return null;
         }
