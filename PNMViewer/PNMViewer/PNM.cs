@@ -73,32 +73,6 @@ namespace PNMViewer
         }
 
         /// <summary>
-        /// フォーマットをチェックする
-        /// </summary>
-        /// <param name="image"></param>
-        /// <returns></returns>
-        private static Format checkFormat(byte[] image)
-        {
-            // エラーチェック
-            if (image.Length < 2)
-            {
-                return Format.Invalid;
-            }
-
-            // 先頭のマジックナンバーをチェックする
-            // P1 ～ P6
-            int magicNumber = 0;
-            if ((char)image[0] == 'P' && int.TryParse(image[1].ToString(), out magicNumber))
-            {
-                if (magicNumber >= 1 && magicNumber <= 6)
-                {
-                    return (Format)Enum.ToObject(typeof(Format), magicNumber);
-                }
-            }
-            return Format.Invalid;
-        }
-
-        /// <summary>
         /// コンバート
         /// </summary>
         /// <param name="filename"></param>
@@ -145,9 +119,30 @@ namespace PNMViewer
         /// </summary>
         private static string _metaComment = "#.*\n";
 
-        private static string cutPNMComment(string text)
+        /// <summary>
+        /// フォーマットをチェックする
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        private static Format checkFormat(byte[] image)
         {
-            return Regex.Replace(text, "#.*\n", string.Empty);
+            // エラーチェック
+            if (image.Length < 2)
+            {
+                return Format.Invalid;
+            }
+
+            // 先頭のマジックナンバーをチェックする
+            // P1 ～ P6
+            int magicNumber = 0;
+            if ((char)image[0] == 'P' && int.TryParse(image[1].ToString(), out magicNumber))
+            {
+                if (magicNumber >= 1 && magicNumber <= 6)
+                {
+                    return (Format)Enum.ToObject(typeof(Format), magicNumber);
+                }
+            }
+            return Format.Invalid;
         }
 
         /// <summary>
@@ -170,12 +165,92 @@ namespace PNMViewer
             StringBuilder pattern = new StringBuilder();
             pattern.Append("P1");
             pattern.Append(_metaDelimitersOneOrMore);
-            pattern.Append("\\d+");
+            pattern.Append("(?<width>\\d+)");
             pattern.Append(_metaDelimitersOneOrMore);
-            pattern.Append("\\d+");
-            pattern.Append(_metaDelimiters); 
-            return Regex.IsMatch(all, pattern.ToString());
+            pattern.Append("(?<height>\\d+)");
+            pattern.Append(_metaDelimiters);
+
+            Regex r = new Regex(pattern.ToString());
+            Match match = r.Match(all);
+
+            if (match.Success)
+            {
+                int width = int.Parse(match.Groups["width"].Value);
+                int height = int.Parse(match.Groups["height"].Value);
+
+                int line = 0;
+                var raw = new System.Collections.Generic.List<int>(width * height);
+                for (int index = match.Length; index < all.Length; ++index, ++line)
+                {
+                    char b = all[index];
+                    if (b == ' ' || b == '\r' || b == '\t') continue;
+                    if (b == '\n')
+                    {
+                        // 1 行が 70 文字を超えている
+                        if ((line - 1) > 70) return false;
+                        line = 0;
+                        continue;
+                    }
+                    raw.Add(int.Parse(b.ToString()));
+                }
+                return true;
+            }
+            return false;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        private static bool checkPGMHeader(byte[] image)
+        {
+            // ASCII 文字として解釈し、コメントを削除する 
+            string all = Encoding.ASCII.GetString(image);
+            all = Regex.Replace(all, _metaComment, string.Empty);
+
+            // マジックナンバ「P2」
+            // 単数または複数の「区切りコード * 1」
+            // 画像の横方向ピクセル数（画像の横幅）
+            // 単数または複数の「区切りコード」
+            // 画像の縦方向ピクセル数（画像の高さ）
+            // 単数または複数の「区切りコード」
+            // 画像の輝度の最大値
+            // 単数の「区切りコード」
+
+            StringBuilder pattern = new StringBuilder();
+            pattern.Append("P2");
+            pattern.Append(_metaDelimitersOneOrMore);
+            pattern.Append("(?<width>\\d+)");
+            pattern.Append(_metaDelimitersOneOrMore);
+            pattern.Append("(?<height>\\d+)");
+            pattern.Append(_metaDelimitersOneOrMore);
+            pattern.Append("(?<luminance>\\d+)");
+            pattern.Append(_metaDelimiters);
+
+            Regex r = new Regex(pattern.ToString());
+            Match match = r.Match(all);
+
+            if (match.Success)
+            {
+                int width = int.Parse(match.Groups["width"].Value);
+                int height = int.Parse(match.Groups["height"].Value);
+                int luminance = int.Parse(match.Groups["luminance"].Value);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// コメントを削除する
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private static string cutPNMComment(string text)
+        {
+            return Regex.Replace(text, "#.*\n", string.Empty);
+        }
+
 
         /// <summary>
         /// 
