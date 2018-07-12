@@ -100,8 +100,7 @@ namespace PNMViewer
                 }
                 catch (Exception)
                 {
-                    PNM.CheckFormat(filename);
-                    return null;
+                    return PNM.Convert(filename);
                 }
             }
         }
