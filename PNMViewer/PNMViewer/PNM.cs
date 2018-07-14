@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -338,13 +339,35 @@ namespace PNMViewer
                     raw.Add(int.Parse(b.ToString()));
                 }
                 Bitmap bitmap = new Bitmap(width, height);
+
+#if false
                 for (int y = 0; y < height; ++y)
                 {
                     for (int x = 0; x < width; ++x)
                     {
-                        bitmap.SetPixel(x, y, raw[x + (y * width)] == 0 ? Color.Black : Color.White);
+                        int index = x + (y * width);
+                        bitmap.SetPixel(x, y, raw[index] == 0 ? Color.White : Color.Black);
                     }
                 }
+#else
+                BitmapData data = bitmap.LockBits(
+                    new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                    ImageLockMode.ReadWrite,
+                    PixelFormat.Format32bppArgb);
+                byte[] buffer = new byte[bitmap.Width * bitmap.Height * 4];
+                System.Runtime.InteropServices.Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
+                for (int i = 0; i < raw.Count; ++i)
+                {
+                    byte color = raw[i] == 0 ? (byte)255 : (byte)0;
+                    int index = i * 4;
+                    buffer[index + 0] = color;
+                    buffer[index + 1] = color;
+                    buffer[index + 2] = color;
+                    buffer[index + 3] = 255;
+                }
+                System.Runtime.InteropServices.Marshal.Copy(buffer, 0, data.Scan0, buffer.Length);
+                bitmap.UnlockBits(data);
+#endif
                 return bitmap;
             }
             return null;
