@@ -13,22 +13,7 @@ namespace PNMViewer
         {
             InitializeComponent();
 
-            initParam();
-
-            string[] cmds = Environment.GetCommandLineArgs();
-            for (int i = 1; i < cmds.Length;)
-            {
-                _bitmap = createBitmapFromFile(cmds[i]);
-                pictureBoxMain.Image = _bitmap;
-                break;
-            }
-        }
-
-        /// <summary>
-        /// パラメータの初期化
-        /// </summary>
-        private void initParam()
-        {
+            // ドラッグ＆ドロップを許可
             pictureBoxMain.AllowDrop = true;
 
             // マウスで移動できるようにする
@@ -53,15 +38,7 @@ namespace PNMViewer
             pictureBoxMain.DragDrop += (object sender, DragEventArgs e) =>
             {
                 var filename = (string[])e.Data.GetData(DataFormats.FileDrop, false);
-
-                if (_bitmap != null)
-                {
-                    _bitmap.Dispose();
-                    _bitmap = null;
-                }
-                _bitmap = createBitmapFromFile(filename[0]);
-
-                pictureBoxMain.Image = _bitmap;
+                reloadPictureBox(filename[0]);
             };
             pictureBoxMain.DragEnter += (object sender, DragEventArgs e) =>
             {
@@ -74,6 +51,50 @@ namespace PNMViewer
                     e.Effect = DragDropEffects.None;
                 }
             };
+
+            string[] cmds = Environment.GetCommandLineArgs();
+            for (int i = 1; i < cmds.Length;)
+            {
+                reloadPictureBox(cmds[i]);
+                break;
+            }
+        }
+
+        /// <summary>
+        /// パラメータの初期化
+        /// </summary>
+        private void reloadPictureBox(string filename)
+        {
+            Bitmap bitmap = createBitmapFromFile(filename);
+            if (bitmap == null)
+            {
+                string errorMessage = string.Empty;
+                switch (PNM.GetLastError())
+                {
+                    case PNM.ConvertResult.InvalidFormat:
+                        errorMessage = "無効なフォーマットです.";
+                        break;
+                    case PNM.ConvertResult.Over70CharsPerLine:
+                        errorMessage = "1 行が 70 文字を超えています.";
+                        break;
+                    case PNM.ConvertResult.NotSupportedFormat:
+                        errorMessage = "未対応のフォーマットです.";
+                        break;
+                    default:
+                        return;
+                }
+                MessageBox.Show(errorMessage, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (_bitmap != null)
+            {
+                _bitmap.Dispose();
+                _bitmap = null;
+            }
+            _bitmap = bitmap;
+            pictureBoxMain.Image = bitmap;
+            fitFormSize();
         }
 
         /// <summary>
@@ -113,19 +134,7 @@ namespace PNMViewer
             ofd.RestoreDirectory = true;
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                var filename = ofd.FileName;
-
-                if (_bitmap != null)
-                {
-                    _bitmap.Dispose();
-                    _bitmap = null;
-                }
-                _bitmap = createBitmapFromFile(filename);
-
-                pictureBoxMain.Image = _bitmap;
-
-                // フォームサイズの更新
-                Size = _bitmap.Size;
+                reloadPictureBox(ofd.FileName);
             }
         }
 
@@ -159,9 +168,7 @@ namespace PNMViewer
             {
                 this.FormBorderStyle = FormBorderStyle.Sizable;
             }
-
-            // フォームサイズの更新
-            Size = _bitmap.Size;
+            fitFormSize();
         }
 
         /// <summary>
@@ -184,9 +191,18 @@ namespace PNMViewer
             {
                 this.FormBorderStyle = FormBorderStyle.Sizable;
             }
+            fitFormSize();
+        }
 
-            // フォームサイズの更新
-            Size = _bitmap.Size;
+        /// <summary>
+        /// フォームサイズの更新
+        /// </summary>
+        private void fitFormSize()
+        {
+            if (_bitmap != null)
+            {
+                Size = _bitmap.Size;
+            }
         }
 
         /// <summary>
