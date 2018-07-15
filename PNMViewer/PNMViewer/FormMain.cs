@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PNMViewer
@@ -100,8 +94,38 @@ namespace PNMViewer
                 }
                 catch (Exception)
                 {
-                    return PNM.Convert(filename);
+                    return PNM.FromFile(filename);
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// Open メニューが選択されたときのイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripMenuItemOpen_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "PNM ファイル(*.pbm;*.pgm;*.ppm)|*.pbm;*.pgm;*.ppm|すべてのファイル(*.*)|*.*";
+            ofd.Title = "開くファイルを選択してください";
+            ofd.RestoreDirectory = true;
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                var filename = ofd.FileName;
+
+                if (_bitmap != null)
+                {
+                    _bitmap.Dispose();
+                    _bitmap = null;
+                }
+                _bitmap = createBitmapFromFile(filename);
+
+                pictureBoxMain.Image = _bitmap;
+
+                // フォームサイズの更新
+                Size = _bitmap.Size;
             }
         }
 
@@ -135,6 +159,9 @@ namespace PNMViewer
             {
                 this.FormBorderStyle = FormBorderStyle.Sizable;
             }
+
+            // フォームサイズの更新
+            Size = _bitmap.Size;
         }
 
         /// <summary>
@@ -157,6 +184,9 @@ namespace PNMViewer
             {
                 this.FormBorderStyle = FormBorderStyle.Sizable;
             }
+
+            // フォームサイズの更新
+            Size = _bitmap.Size;
         }
 
         /// <summary>
