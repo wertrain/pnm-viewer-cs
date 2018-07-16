@@ -170,7 +170,7 @@ namespace PNMViewer
         /// <summary>
         /// ゼロ以上のコメントを表すメタ文字
         /// </summary>
-        private static string _metaCommentZeroOrMore = "(#.*\n)*";
+        private static string _metaCommentZeroOrMore = "(" + _metaComment + ")*";
 
         /// <summary>
         /// フォーマットをチェックする
@@ -179,7 +179,7 @@ namespace PNMViewer
         /// <returns></returns>
         private static Format checkFormat(byte[] image)
         {
-            // ASCII 文字として解釈し、コメントを削除する 
+            // ASCII 文字として解釈する 
             string all = Encoding.ASCII.GetString(image);
 
             // エラーチェック
@@ -208,7 +208,7 @@ namespace PNMViewer
         /// <returns></returns>
         private static string cutPNMComment(string text)
         {
-            return Regex.Replace(text, "#.*\n", string.Empty);
+            return Regex.Replace(text, _metaComment, string.Empty);
         }
 
         /// <summary>
