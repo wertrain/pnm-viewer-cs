@@ -566,9 +566,10 @@ namespace PNMViewer
                     PixelFormat.Format32bppArgb);
                 byte[] buffer = new byte[bitmap.Width * bitmap.Height * 4];
                 System.Runtime.InteropServices.Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
+                byte [] colors = { 255, 0 };
                 for (int i = 0; i < raw.Count; ++i)
                 {
-                    byte color = raw[i] == 0 ? (byte)255 : (byte)0;
+                    byte color = colors[raw[i]];
                     int index = i * 4;
                     buffer[index + 0] = color;
                     buffer[index + 1] = color;
