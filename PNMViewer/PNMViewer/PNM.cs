@@ -220,7 +220,7 @@ namespace PNMViewer
         {
             // ASCII 文字として解釈し、コメントを削除する 
             string all = Encoding.ASCII.GetString(image);
-            all = Regex.Replace(all, _metaComment, string.Empty);
+            all = cutPNMComment(all);
 
             // マジックナンバ「P1」
             // 単数または複数の「区切りコード」
@@ -301,7 +301,7 @@ namespace PNMViewer
         {
             // ASCII 文字として解釈し、コメントを削除する 
             string all = Encoding.ASCII.GetString(image);
-            all = Regex.Replace(all, _metaComment, string.Empty);
+            all = cutPNMComment(all);
 
             // マジックナンバ「P2」
             // 単数または複数の「区切りコード * 1」
@@ -400,7 +400,7 @@ namespace PNMViewer
         {
             // ASCII 文字として解釈し、コメントを削除する 
             string all = Encoding.ASCII.GetString(image);
-            all = Regex.Replace(all, _metaComment, string.Empty);
+            all = cutPNMComment(all);
 
             // マジックナンバ「P3」
             // 単数または複数の「区切りコード * 1」
