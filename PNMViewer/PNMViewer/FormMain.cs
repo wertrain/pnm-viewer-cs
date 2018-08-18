@@ -16,6 +16,9 @@ namespace PNMViewer
             // ドラッグ＆ドロップを許可
             pictureBoxMain.AllowDrop = true;
 
+            // 画像を開くまで保存は無効にする
+            toolStripMenuItemSave.Enabled = false;
+
             // マウスで移動できるようにする
             Point mousePoint = new Point();
             pictureBoxMain.MouseDown += (object sender, MouseEventArgs e) =>
@@ -95,6 +98,7 @@ namespace PNMViewer
             _bitmap = bitmap;
             pictureBoxMain.Image = bitmap;
             fitFormSize();
+            toolStripMenuItemSave.Enabled = true;
         }
 
         /// <summary>
@@ -135,6 +139,23 @@ namespace PNMViewer
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 reloadPictureBox(ofd.FileName);
+            }
+        }
+
+        /// <summary>
+        /// Save メニューが選択されたときのイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripMenuItemSave_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Portable Network Graphics (*.png)|*.png|Bitmap Image (*.bmp)|*.bmp|Graphics Interchange Format (*.gif)|*.gif";
+            sfd.Title = "ファイル名を入力してください";
+            sfd.RestoreDirectory = true;
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                pictureBoxMain.Image.Save(sfd.FileName);
             }
         }
 

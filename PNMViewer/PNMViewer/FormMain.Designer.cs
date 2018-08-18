@@ -37,11 +37,12 @@
             this.toolStripContextMenuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItemFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemHideMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItemOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemSave = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
             this.contextMenuStripMain.SuspendLayout();
             this.menuStripMain.SuspendLayout();
@@ -102,11 +103,24 @@
             // 
             this.toolStripMenuItemFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItemOpen,
+            this.toolStripMenuItemSave,
             this.toolStripSeparator2,
             this.toolStripMenuItemExit});
             this.toolStripMenuItemFile.Name = "toolStripMenuItemFile";
             this.toolStripMenuItemFile.Size = new System.Drawing.Size(51, 20);
             this.toolStripMenuItemFile.Text = "File(&F)";
+            // 
+            // toolStripMenuItemOpen
+            // 
+            this.toolStripMenuItemOpen.Name = "toolStripMenuItemOpen";
+            this.toolStripMenuItemOpen.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemOpen.Text = "Open(&O)";
+            this.toolStripMenuItemOpen.Click += new System.EventHandler(this.toolStripMenuItemOpen_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
             // 
             // toolStripMenuItemExit
             // 
@@ -126,21 +140,16 @@
             // toolStripMenuItemHideMenu
             // 
             this.toolStripMenuItemHideMenu.Name = "toolStripMenuItemHideMenu";
-            this.toolStripMenuItemHideMenu.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemHideMenu.Size = new System.Drawing.Size(150, 22);
             this.toolStripMenuItemHideMenu.Text = "Hide Menu(&H)";
             this.toolStripMenuItemHideMenu.Click += new System.EventHandler(this.toolStripMenuItemHideMenu_Click);
             // 
-            // toolStripSeparator2
+            // toolStripMenuItemSave
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
-            // 
-            // toolStripMenuItemOpen
-            // 
-            this.toolStripMenuItemOpen.Name = "toolStripMenuItemOpen";
-            this.toolStripMenuItemOpen.Size = new System.Drawing.Size(152, 22);
-            this.toolStripMenuItemOpen.Text = "Open(&O)";
-            this.toolStripMenuItemOpen.Click += new System.EventHandler(this.toolStripMenuItemOpen_Click);
+            this.toolStripMenuItemSave.Name = "toolStripMenuItemSave";
+            this.toolStripMenuItemSave.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemSave.Text = "Save(&S)";
+            this.toolStripMenuItemSave.Click += new System.EventHandler(this.toolStripMenuItemSave_Click);
             // 
             // FormMain
             // 
@@ -179,6 +188,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripContextMenuItemHideMenu;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpen;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSave;
     }
 }
 
